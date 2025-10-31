@@ -1,52 +1,86 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { useEffect, useState } from 'react';
+import '@/App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import './i18n';
+import Landing from './pages/Landing';
+import Auth from './pages/Auth';
+import Dashboard from './pages/Dashboard';
+import BodyAnalysis from './pages/BodyAnalysis';
+import WorkoutPlan from './pages/WorkoutPlan';
+import NutritionPlan from './pages/NutritionPlan';
+import Progress from './pages/Progress';
+import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    checkSession();
+  }, []);
+
+  const checkSession = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const token = localStorage.getItem('session_token');
+      if (token) {
+        const response = await axios.get(`${API}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(response.data);
+        if (response.data.language_preference) {
+          i18n.changeLanguage(response.data.language_preference);
+        }
+      }
+    } catch (error) {
+      console.error('Session check failed:', error);
+      localStorage.removeItem('session_token');
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('session_token');
+      await axios.post(`${API}/auth/logout`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('session_token');
+      setUser(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-screen" data-testid="loading-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <div className="App">
+    <div className="App" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
+          <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <Auth setUser={setUser} />} />
+          <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/body-analysis" element={user ? <BodyAnalysis user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/workout-plan" element={user ? <WorkoutPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/nutrition-plan" element={user ? <NutritionPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/progress" element={user ? <Progress user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
         </Routes>
       </BrowserRouter>
+      <Toaster position="top-center" richColors />
     </div>
   );
 }
