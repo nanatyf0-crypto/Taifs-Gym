@@ -11,6 +11,10 @@ import BodyAnalysis from './pages/BodyAnalysis';
 import WorkoutPlan from './pages/WorkoutPlan';
 import NutritionPlan from './pages/NutritionPlan';
 import Progress from './pages/Progress';
+import Challenges from './pages/Challenges';
+import Community from './pages/Community';
+import ExerciseLibrary from './pages/ExerciseLibrary';
+import MealLibrary from './pages/MealLibrary';
 import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
