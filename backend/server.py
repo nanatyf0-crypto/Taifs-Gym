@@ -1028,6 +1028,122 @@ async def get_meals(
     meals = await db.meals.find(filter_query, {"_id": 0}).to_list(250)
     return meals
 
+# ========== AI IMAGE GENERATION ENDPOINTS ==========
+
+@api_router.post("/generate-exercise-image")
+async def generate_exercise_image(
+    exercise_name: str,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
+        prompt = f"Professional fitness photography: Person performing {exercise_name} exercise, proper form, gym setting, athletic wear, high quality, realistic"
+        
+        images = await image_gen.generate_images(
+            prompt=prompt,
+            model="gpt-image-1",
+            number_of_images=1
+        )
+        
+        if images and len(images) > 0:
+            image_base64 = base64.b64encode(images[0]).decode('utf-8')
+            return {"image_base64": image_base64, "exercise_name": exercise_name}
+        else:
+            raise HTTPException(status_code=500, detail="No image was generated")
+    except Exception as e:
+        logging.error(f"Image generation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/generate-meal-image")
+async def generate_meal_image(
+    meal_name: str,
+    meal_type: str,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
+        prompt = f"Professional food photography: {meal_name} for {meal_type}, beautifully plated, natural lighting, high quality, appetizing, realistic"
+        
+        images = await image_gen.generate_images(
+            prompt=prompt,
+            model="gpt-image-1",
+            number_of_images=1
+        )
+        
+        if images and len(images) > 0:
+            image_base64 = base64.b64encode(images[0]).decode('utf-8')
+            return {"image_base64": image_base64, "meal_name": meal_name}
+        else:
+            raise HTTPException(status_code=500, detail="No image was generated")
+    except Exception as e:
+        logging.error(f"Meal image generation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ========== VOICE ASSISTANT ENDPOINTS ==========
+
+@api_router.post("/generate-voice-guidance")
+async def generate_voice_guidance(
+    text: str,
+    voice: str = "nova",
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
+        audio_base64 = await tts.generate_speech_base64(
+            text=text,
+            model="tts-1",
+            voice=voice,
+            speed=1.0
+        )
+        
+        return {"audio_base64": audio_base64, "text": text}
+    except Exception as e:
+        logging.error(f"TTS error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/generate-workout-audio")
+async def generate_workout_audio(
+    exercise_name: str,
+    reps: int,
+    sets: int,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        text = f"Next exercise: {exercise_name}. Perform {sets} sets of {reps} repetitions. Remember to maintain proper form and breathe steadily. Let's begin!"
+        
+        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
+        audio_base64 = await tts.generate_speech_base64(
+            text=text,
+            model="tts-1",
+            voice="nova",
+            speed=1.0
+        )
+        
+        return {"audio_base64": audio_base64, "exercise_name": exercise_name}
+    except Exception as e:
+        logging.error(f"Workout audio error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ========== ROOT ==========
 
 @api_router.get("/")
