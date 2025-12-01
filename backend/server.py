@@ -95,6 +95,127 @@ class ProgressLog(BaseModel):
     notes: Optional[str] = None
     logged_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# ========== GAMIFICATION MODELS ==========
+
+class Challenge(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: str
+    type: str  # fitness, nutrition, skill, seasonal
+    difficulty: str  # easy, medium, hard
+    reward_coins: int
+    start_date: datetime
+    end_date: datetime
+    participants: List[str] = []
+    is_global: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserChallenge(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    challenge_id: str
+    status: str  # active, completed, failed
+    progress: int = 0
+    completed_at: Optional[datetime] = None
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Badge(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: str
+    icon: str
+    requirement: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserBadge(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    badge_id: str
+    earned_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class GymCoins(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    user_id: str
+    balance: int = 0
+    total_earned: int = 0
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# ========== COMMUNITY MODELS ==========
+
+class Post(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    content: str
+    image_url: Optional[str] = None
+    post_type: str  # progress, meal, workout, achievement
+    likes: int = 0
+    comments_count: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Comment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    user_id: str
+    content: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Follow(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    follower_id: str
+    following_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Group(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: str
+    creator_id: str
+    members: List[str] = []
+    is_private: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# ========== EXERCISE & MEAL LIBRARY ==========
+
+class Exercise(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    category: str  # bodyweight, weights, cardio, etc.
+    muscle_group: str
+    difficulty: str  # beginner, intermediate, advanced
+    equipment: str  # none, dumbbells, etc.
+    instructions: str
+    video_url: Optional[str] = None
+    image_url: Optional[str] = None
+    calories_burned: int
+    is_premium: bool = False
+
+class Meal(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    meal_type: str  # breakfast, lunch, dinner, snack, pre_workout, post_workout
+    calories: int
+    protein: int
+    carbs: int
+    fats: int
+    ingredients: List[str]
+    instructions: str
+    prep_time: int
+    image_url: Optional[str] = None
+    is_budget_friendly: bool = False
+    is_child_friendly: bool = False
+    is_premium: bool = False
+    dietary_tags: List[str] = []  # vegan, low-calorie, high-protein, etc.
+
 # ========== INPUT MODELS ==========
 
 class RegisterInput(BaseModel):
