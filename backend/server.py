@@ -813,6 +813,218 @@ async def get_progress_logs(
     
     return logs
 
+# ========== GAMIFICATION ENDPOINTS ==========
+
+@api_router.get("/challenges", response_model=List[Challenge])
+async def get_challenges():
+    challenges = await db.challenges.find({}, {"_id": 0}).to_list(100)
+    for challenge in challenges:
+        if isinstance(challenge.get('created_at'), str):
+            challenge['created_at'] = datetime.fromisoformat(challenge['created_at'])
+        if isinstance(challenge.get('start_date'), str):
+            challenge['start_date'] = datetime.fromisoformat(challenge['start_date'])
+        if isinstance(challenge.get('end_date'), str):
+            challenge['end_date'] = datetime.fromisoformat(challenge['end_date'])
+    return challenges
+
+@api_router.post("/challenges/{challenge_id}/join")
+async def join_challenge(
+    challenge_id: str,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    user_challenge = UserChallenge(
+        user_id=user.id,
+        challenge_id=challenge_id,
+        status="active"
+    )
+    
+    doc = user_challenge.model_dump()
+    doc['joined_at'] = doc['joined_at'].isoformat()
+    await db.user_challenges.insert_one(doc)
+    
+    return {"message": "Joined challenge successfully"}
+
+@api_router.get("/gym-coins")
+async def get_gym_coins(
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    coins = await db.gym_coins.find_one({"user_id": user.id}, {"_id": 0})
+    if not coins:
+        coins = {"user_id": user.id, "balance": 0, "total_earned": 0}
+    return coins
+
+@api_router.get("/badges", response_model=List[Badge])
+async def get_badges():
+    badges = await db.badges.find({}, {"_id": 0}).to_list(100)
+    for badge in badges:
+        if isinstance(badge.get('created_at'), str):
+            badge['created_at'] = datetime.fromisoformat(badge['created_at'])
+    return badges
+
+@api_router.get("/user-badges")
+async def get_user_badges(
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    user_badges = await db.user_badges.find(
+        {"user_id": user.id}, {"_id": 0}
+    ).to_list(100)
+    return user_badges
+
+# ========== COMMUNITY ENDPOINTS ==========
+
+@api_router.post("/posts", response_model=Post)
+async def create_post(
+    input: PostInput,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    post = Post(
+        user_id=user.id,
+        content=input.content,
+        image_url=input.image_url,
+        post_type=input.post_type
+    )
+    
+    doc = post.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.posts.insert_one(doc)
+    
+    return post
+
+@api_router.get("/posts", response_model=List[Post])
+async def get_posts(
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    posts = await db.posts.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    for post in posts:
+        if isinstance(post.get('created_at'), str):
+            post['created_at'] = datetime.fromisoformat(post['created_at'])
+    return posts
+
+@api_router.post("/posts/{post_id}/like")
+async def like_post(
+    post_id: str,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    await db.posts.update_one(
+        {"id": post_id},
+        {"$inc": {"likes": 1}}
+    )
+    return {"message": "Post liked"}
+
+@api_router.post("/posts/{post_id}/comments", response_model=Comment)
+async def create_comment(
+    post_id: str,
+    input: CommentInput,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    comment = Comment(
+        post_id=post_id,
+        user_id=user.id,
+        content=input.content
+    )
+    
+    doc = comment.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.comments.insert_one(doc)
+    
+    # Increment comments count
+    await db.posts.update_one(
+        {"id": post_id},
+        {"$inc": {"comments_count": 1}}
+    )
+    
+    return comment
+
+@api_router.post("/follow/{user_id}")
+async def follow_user(
+    user_id: str,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    follow = Follow(
+        follower_id=user.id,
+        following_id=user_id
+    )
+    
+    doc = follow.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.follows.insert_one(doc)
+    
+    return {"message": "Followed successfully"}
+
+@api_router.get("/exercises", response_model=List[Exercise])
+async def get_exercises(
+    category: Optional[str] = None,
+    difficulty: Optional[str] = None,
+    muscle_group: Optional[str] = None
+):
+    filter_query = {}
+    if category:
+        filter_query['category'] = category
+    if difficulty:
+        filter_query['difficulty'] = difficulty
+    if muscle_group:
+        filter_query['muscle_group'] = muscle_group
+    
+    exercises = await db.exercises.find(filter_query, {"_id": 0}).to_list(350)
+    return exercises
+
+@api_router.get("/meals", response_model=List[Meal])
+async def get_meals(
+    meal_type: Optional[str] = None,
+    is_budget_friendly: Optional[bool] = None,
+    is_child_friendly: Optional[bool] = None
+):
+    filter_query = {}
+    if meal_type:
+        filter_query['meal_type'] = meal_type
+    if is_budget_friendly is not None:
+        filter_query['is_budget_friendly'] = is_budget_friendly
+    if is_child_friendly is not None:
+        filter_query['is_child_friendly'] = is_child_friendly
+    
+    meals = await db.meals.find(filter_query, {"_id": 0}).to_list(250)
+    return meals
+
 # ========== ROOT ==========
 
 @api_router.get("/")
