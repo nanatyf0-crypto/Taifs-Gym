@@ -35,6 +35,34 @@ const Dashboard = ({ user, onLogout }) => {
       desc: 'Track your journey',
       path: '/progress',
       testId: 'progress-card'
+    },
+    {
+      icon: Trophy,
+      title: 'Challenges',
+      desc: 'Join global competitions',
+      path: '/challenges',
+      testId: 'challenges-card'
+    },
+    {
+      icon: Users,
+      title: 'Community',
+      desc: 'Share & connect',
+      path: '/community',
+      testId: 'community-card'
+    },
+    {
+      icon: Dumbbell,
+      title: 'Exercise Library',
+      desc: '350+ exercises',
+      path: '/exercise-library',
+      testId: 'exercise-library-card'
+    },
+    {
+      icon: UtensilsCrossed,
+      title: 'Meal Library',
+      desc: '250+ meals',
+      path: '/meal-library',
+      testId: 'meal-library-card'
     }
   ];
 
