@@ -247,6 +247,36 @@ class ProgressLogInput(BaseModel):
     body_fat: Optional[float] = None
     notes: Optional[str] = None
 
+# ========== GAMIFICATION INPUT MODELS ==========
+
+class ChallengeInput(BaseModel):
+    name: str
+    description: str
+    type: str
+    difficulty: str
+    reward_coins: int
+    start_date: datetime
+    end_date: datetime
+    is_global: bool = True
+
+class JoinChallengeInput(BaseModel):
+    challenge_id: str
+
+# ========== COMMUNITY INPUT MODELS ==========
+
+class PostInput(BaseModel):
+    content: str
+    image_url: Optional[str] = None
+    post_type: str
+
+class CommentInput(BaseModel):
+    content: str
+
+class GroupInput(BaseModel):
+    name: str
+    description: str
+    is_private: bool = False
+
 # ========== HELPER FUNCTIONS ==========
 
 def hash_password(password: str) -> str:
