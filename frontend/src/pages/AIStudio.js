@@ -45,15 +45,27 @@ const AIStudio = ({ user }) => {
       let response;
       if (imageType === 'exercise') {
         response = await axios.post(
-          `${API}/generate-exercise-image?exercise_name=${encodeURIComponent(exerciseName)}`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${API}/generate-exercise-image`,
+          { name: exerciseName, type: 'exercise' },
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            timeout: 90000
+          }
         );
       } else {
         response = await axios.post(
-          `${API}/generate-meal-image?meal_name=${encodeURIComponent(mealName)}&meal_type=${mealType}`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${API}/generate-meal-image`,
+          { name: mealName, type: mealType },
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            timeout: 90000
+          }
         );
       }
       
@@ -61,7 +73,7 @@ const AIStudio = ({ user }) => {
       toast.success('Image generated successfully!');
     } catch (error) {
       console.error('Image generation error:', error);
-      toast.error(error.response?.data?.detail || 'Failed to generate image');
+      toast.error(error.response?.data?.detail || 'Failed to generate image. Please try again.');
     } finally {
       setLoading(false);
     }
