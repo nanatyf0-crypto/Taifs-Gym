@@ -96,6 +96,16 @@ const Dashboard = ({ user, onLogout }) => {
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <span data-testid="user-name" style={{ color: '#94a3b8' }}>{user.name}</span>
             <Button
+              onClick={() => navigate('/profile')}
+              data-testid="profile-btn"
+              variant="ghost"
+              size="sm"
+              style={{ color: '#0ea5e9' }}
+            >
+              <User size={18} style={{ marginRight: '0.5rem' }} />
+              Profile
+            </Button>
+            <Button
               onClick={onLogout}
               data-testid="logout-btn"
               variant="ghost"
