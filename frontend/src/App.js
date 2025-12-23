@@ -18,6 +18,8 @@ import MealLibrary from './pages/MealLibrary';
 import AIStudio from './pages/AIStudio';
 import Leaderboard from './pages/Leaderboard';
 import DailyTips from './pages/DailyTips';
+import Setup from './pages/Setup';
+import Profile from './pages/Profile';
 import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
