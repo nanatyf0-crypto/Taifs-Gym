@@ -1151,6 +1151,177 @@ async def generate_workout_audio(
         logging.error(f"Workout audio error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ========== LEADERBOARD & STATS ENDPOINTS ==========
+
+@api_router.get("/leaderboard")
+async def get_leaderboard(limit: int = 10):
+    """Get top users by gym coins"""
+    try:
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "users",
+                    "localField": "user_id",
+                    "foreignField": "id",
+                    "as": "user"
+                }
+            },
+            {"$unwind": "$user"},
+            {"$sort": {"balance": -1}},
+            {"$limit": limit},
+            {
+                "$project": {
+                    "_id": 0,
+                    "user_id": 1,
+                    "user_name": "$user.name",
+                    "user_picture": "$user.picture",
+                    "balance": 1,
+                    "total_earned": 1
+                }
+            }
+        ]
+        
+        leaderboard = await db.gym_coins.aggregate(pipeline).to_list(limit)
+        return leaderboard
+    except Exception as e:
+        logging.error(f"Leaderboard error: {e}")
+        return []
+
+@api_router.get("/daily-tip")
+async def get_daily_tip(
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    """Generate daily fitness/nutrition tip using AI"""
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"daily_tip_{user.id}",
+            system_message="You are a fitness and nutrition expert. Provide short, actionable daily tips."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        from datetime import date
+        today = date.today().isoformat()
+        
+        prompt = f"Give me one practical fitness or nutrition tip for {today}. Keep it under 100 words, motivational, and actionable."
+        
+        response = await chat.send_message(UserMessage(text=prompt))
+        
+        return {"tip": response, "date": today}
+    except Exception as e:
+        logging.error(f"Daily tip error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/user-stats")
+async def get_user_stats(
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    """Get user statistics dashboard"""
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        # Count various activities
+        body_analyses_count = await db.body_analyses.count_documents({"user_id": user.id})
+        workout_plans_count = await db.workout_plans.count_documents({"user_id": user.id})
+        nutrition_plans_count = await db.nutrition_plans.count_documents({"user_id": user.id})
+        progress_logs_count = await db.progress_logs.count_documents({"user_id": user.id})
+        posts_count = await db.posts.count_documents({"user_id": user.id})
+        
+        # Get gym coins
+        coins_doc = await db.gym_coins.find_one({"user_id": user.id}, {"_id": 0})
+        coins_balance = coins_doc["balance"] if coins_doc else 0
+        
+        # Get badges count
+        badges_count = await db.user_badges.count_documents({"user_id": user.id})
+        
+        # Get active challenges
+        active_challenges = await db.user_challenges.count_documents({
+            "user_id": user.id,
+            "status": "active"
+        })
+        
+        return {
+            "body_analyses": body_analyses_count,
+            "workout_plans": workout_plans_count,
+            "nutrition_plans": nutrition_plans_count,
+            "progress_logs": progress_logs_count,
+            "posts": posts_count,
+            "coins": coins_balance,
+            "badges": badges_count,
+            "active_challenges": active_challenges
+        }
+    except Exception as e:
+        logging.error(f"User stats error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/meals/{meal_id}/favorite")
+async def favorite_meal(
+    meal_id: str,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    """Add meal to favorites"""
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        # Check if already favorited
+        existing = await db.favorite_meals.find_one({
+            "user_id": user.id,
+            "meal_id": meal_id
+        })
+        
+        if existing:
+            # Remove from favorites
+            await db.favorite_meals.delete_one({"_id": existing["_id"]})
+            return {"message": "Removed from favorites", "favorited": False}
+        else:
+            # Add to favorites
+            await db.favorite_meals.insert_one({
+                "id": str(uuid.uuid4()),
+                "user_id": user.id,
+                "meal_id": meal_id,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            return {"message": "Added to favorites", "favorited": True}
+    except Exception as e:
+        logging.error(f"Favorite meal error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/favorite-meals")
+async def get_favorite_meals(
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    """Get user's favorite meals"""
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        favorites = await db.favorite_meals.find(
+            {"user_id": user.id}, {"_id": 0}
+        ).to_list(100)
+        
+        # Get meal details
+        meal_ids = [fav["meal_id"] for fav in favorites]
+        meals = await db.meals.find(
+            {"id": {"$in": meal_ids}}, {"_id": 0}
+        ).to_list(100)
+        
+        return meals
+    except Exception as e:
+        logging.error(f"Get favorite meals error: {e}")
+        return []
+
 # ========== ROOT ==========
 
 @api_router.get("/")
