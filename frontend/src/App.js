@@ -68,6 +68,20 @@ function App() {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem('session_token');
+      if (token) {
+        const response = await axios.get(`${API}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(response.data);
+      }
+    } catch (error) {
+      console.error('Refresh user error:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-screen" data-testid="loading-screen">
