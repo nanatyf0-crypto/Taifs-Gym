@@ -63,6 +63,13 @@ const Dashboard = ({ user, onLogout }) => {
       desc: '250+ meals',
       path: '/meal-library',
       testId: 'meal-library-card'
+    },
+    {
+      icon: Sparkles,
+      title: 'AI Studio',
+      desc: 'Generate images & voice',
+      path: '/ai-studio',
+      testId: 'ai-studio-card'
     }
   ];
 
