@@ -284,6 +284,10 @@ class VoiceInput(BaseModel):
     text: str
     voice: str = "nova"
 
+class ImageGenerationInput(BaseModel):
+    name: str
+    type: str = "exercise"  # exercise or meal
+
 # ========== HELPER FUNCTIONS ==========
 
 def hash_password(password: str) -> str:
