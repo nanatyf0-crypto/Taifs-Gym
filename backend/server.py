@@ -1108,13 +1108,13 @@ async def generate_voice_guidance(
     try:
         tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
         audio_base64 = await tts.generate_speech_base64(
-            text=text,
+            text=input.text,
             model="tts-1",
-            voice=voice,
+            voice=input.voice,
             speed=1.0
         )
         
-        return {"audio_base64": audio_base64, "text": text}
+        return {"audio_base64": audio_base64, "text": input.text}
     except Exception as e:
         logging.error(f"TTS error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
