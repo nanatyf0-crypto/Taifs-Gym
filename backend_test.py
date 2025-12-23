@@ -316,12 +316,12 @@ class TaifFitAPITester:
         
         print("🎤 Testing AI Voice Generation (may take 10-30 seconds)...")
         
-        voice_data = {
-            "text": "Welcome to your workout session. Let's start with some warm-up exercises.",
-            "voice": "nova"
-        }
+        # The endpoint expects query parameters, not request body
+        text = "Welcome to your workout session. Let's start with some warm-up exercises."
+        voice = "nova"
+        endpoint = f"generate-voice-guidance?text={text}&voice={voice}"
         
-        return self.run_test("Generate Voice Guidance", "POST", "generate-voice-guidance", 200, voice_data)
+        return self.run_test("Generate Voice Guidance", "POST", endpoint, 200)
 
     def test_logout(self):
         """Test user logout"""
