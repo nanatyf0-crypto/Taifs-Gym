@@ -119,11 +119,29 @@ const AIStudio = ({ user }) => {
 
       <div className="container" style={{ paddingTop: '2rem' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
-            <Sparkles size={40} color="#0ea5e9" style={{ marginRight: '1rem' }} />
-            <h1 className="gradient-text" style={{ fontSize: '2.5rem', fontWeight: '700' }}>
-              AI Studio
-            </h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Sparkles size={40} color="#0ea5e9" style={{ marginRight: '1rem' }} />
+              <h1 className="gradient-text" style={{ fontSize: '2.5rem', fontWeight: '700' }}>
+                AI Studio
+              </h1>
+            </div>
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                background: 'rgba(14, 165, 233, 0.1)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                border: '1px solid rgba(14, 165, 233, 0.3)'
+              }}
+            >
+              <HelpCircle size={18} color="#0ea5e9" />
+              <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                <strong style={{ color: '#0ea5e9' }}>⏱️ Note:</strong> Image generation takes 30-60 seconds. Please be patient!
+              </div>
+            </div>
           </div>
 
           <Tabs defaultValue="image" className="w-full">
