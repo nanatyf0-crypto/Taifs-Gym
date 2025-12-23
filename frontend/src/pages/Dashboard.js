@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Activity, Target, Utensils, TrendingUp, LogOut, Trophy, Users, Dumbbell, UtensilsCrossed } from 'lucide-react';
+import { Activity, Target, Utensils, TrendingUp, LogOut, Trophy, Users, Dumbbell, UtensilsCrossed, Sparkles } from 'lucide-react';
 
 const Dashboard = ({ user, onLogout }) => {
   const { t } = useTranslation();
