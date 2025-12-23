@@ -1040,7 +1040,7 @@ async def get_meals(
 
 @api_router.post("/generate-exercise-image")
 async def generate_exercise_image(
-    exercise_name: str,
+    input: ImageGenerationInput,
     authorization: Optional[str] = Header(None),
     request: Request = None
 ):
@@ -1050,7 +1050,7 @@ async def generate_exercise_image(
     
     try:
         image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
-        prompt = f"Professional fitness photography: Person performing {exercise_name} exercise, proper form, gym setting, athletic wear, high quality, realistic"
+        prompt = f"Professional fitness photography: Person performing {input.name} exercise, proper form, gym setting, athletic wear, high quality, realistic"
         
         images = await image_gen.generate_images(
             prompt=prompt,
@@ -1060,7 +1060,7 @@ async def generate_exercise_image(
         
         if images and len(images) > 0:
             image_base64 = base64.b64encode(images[0]).decode('utf-8')
-            return {"image_base64": image_base64, "exercise_name": exercise_name}
+            return {"image_base64": image_base64, "exercise_name": input.name}
         else:
             raise HTTPException(status_code=500, detail="No image was generated")
     except Exception as e:
@@ -1069,8 +1069,7 @@ async def generate_exercise_image(
 
 @api_router.post("/generate-meal-image")
 async def generate_meal_image(
-    meal_name: str,
-    meal_type: str,
+    input: ImageGenerationInput,
     authorization: Optional[str] = Header(None),
     request: Request = None
 ):
@@ -1080,7 +1079,8 @@ async def generate_meal_image(
     
     try:
         image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
-        prompt = f"Professional food photography: {meal_name} for {meal_type}, beautifully plated, natural lighting, high quality, appetizing, realistic"
+        meal_type = input.type if input.type != "exercise" else "meal"
+        prompt = f"Professional food photography: {input.name} for {meal_type}, beautifully plated, natural lighting, high quality, appetizing, realistic"
         
         images = await image_gen.generate_images(
             prompt=prompt,
@@ -1090,7 +1090,7 @@ async def generate_meal_image(
         
         if images and len(images) > 0:
             image_base64 = base64.b64encode(images[0]).decode('utf-8')
-            return {"image_base64": image_base64, "meal_name": meal_name}
+            return {"image_base64": image_base64, "meal_name": input.name}
         else:
             raise HTTPException(status_code=500, detail="No image was generated")
     except Exception as e:
