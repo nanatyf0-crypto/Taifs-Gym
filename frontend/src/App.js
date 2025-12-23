@@ -16,6 +16,8 @@ import Community from './pages/Community';
 import ExerciseLibrary from './pages/ExerciseLibrary';
 import MealLibrary from './pages/MealLibrary';
 import AIStudio from './pages/AIStudio';
+import Leaderboard from './pages/Leaderboard';
+import DailyTips from './pages/DailyTips';
 import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
