@@ -92,7 +92,35 @@ const resources = {
       "close": "Close",
       "back": "Back",
       "next": "Next",
-      "submit": "Submit"
+      "submit": "Submit",
+      
+      // New Features
+      "challenges": "Challenges",
+      "community": "Community",
+      "exerciseLibrary": "Exercise Library",
+      "mealLibrary": "Meal Library",
+      "aiStudio": "AI Studio",
+      "leaderboard": "Leaderboard",
+      "dailyTips": "Daily Tips & Stats",
+      "favorites": "Favorites",
+      "stats": "Statistics",
+      "coins": "Coins",
+      "badges": "Badges",
+      "rank": "Rank",
+      "totalEarned": "Total Earned",
+      "refresh": "Refresh",
+      "generateImage": "Generate Image",
+      "generateVoice": "Generate Voice",
+      "imageGeneration": "Image Generation",
+      "voiceAssistant": "Voice Assistant",
+      "exerciseName": "Exercise Name",
+      "mealName": "Meal Name",
+      "voiceType": "Voice Type",
+      "textToSpeak": "Text to Speak",
+      "imagetype": "Image Type",
+      "exercise": "Exercise",
+      "meal": "Meal",
+      "generating": "Generating..."
     }
   },
   ar: {
@@ -185,7 +213,35 @@ const resources = {
       "close": "إغلاق",
       "back": "رجوع",
       "next": "التالي",
-      "submit": "إرسال"
+      "submit": "إرسال",
+      
+      // New Features
+      "challenges": "التحديات",
+      "community": "المجتمع",
+      "exerciseLibrary": "مكتبة التمارين",
+      "mealLibrary": "مكتبة الوجبات",
+      "aiStudio": "استوديو الذكاء الاصطناعي",
+      "leaderboard": "لوحة المتصدرين",
+      "dailyTips": "نصائح يومية وإحصائيات",
+      "favorites": "المفضلة",
+      "stats": "الإحصائيات",
+      "coins": "العملات",
+      "badges": "الأوسمة",
+      "rank": "الترتيب",
+      "totalEarned": "المجموع المكتسب",
+      "refresh": "تحديث",
+      "generateImage": "توليد صورة",
+      "generateVoice": "توليد صوت",
+      "imageGeneration": "توليد الصور",
+      "voiceAssistant": "المساعد الصوتي",
+      "exerciseName": "اسم التمرين",
+      "mealName": "اسم الوجبة",
+      "voiceType": "نوع الصوت",
+      "textToSpeak": "النص للنطق",
+      "imageType": "نوع الصورة",
+      "exercise": "تمرين",
+      "meal": "وجبة",
+      "generating": "جاري التوليد..."
     }
   }
 };
