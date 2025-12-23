@@ -164,9 +164,30 @@ const MealLibrary = ({ user }) => {
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
                     <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#e2e8f0' }}>{meal.name}</h3>
-                    {meal.is_premium && (
-                      <span style={{ padding: '0.25rem 0.5rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600' }}>PRO</span>
-                    )}
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      {meal.is_premium && (
+                        <span style={{ padding: '0.25rem 0.5rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600' }}>PRO</span>
+                      )}
+                      <button
+                        onClick={() => toggleFavorite(meal.id)}
+                        data-testid={`favorite-btn-${idx}`}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '0.25rem',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        <Heart
+                          size={24}
+                          color={favorites.includes(meal.id) ? '#ef4444' : '#94a3b8'}
+                          fill={favorites.includes(meal.id) ? '#ef4444' : 'none'}
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
