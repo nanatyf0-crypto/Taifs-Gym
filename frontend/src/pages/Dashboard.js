@@ -70,6 +70,20 @@ const Dashboard = ({ user, onLogout }) => {
       desc: 'Generate images & voice',
       path: '/ai-studio',
       testId: 'ai-studio-card'
+    },
+    {
+      icon: Award,
+      title: 'Leaderboard',
+      desc: 'Top performers',
+      path: '/leaderboard',
+      testId: 'leaderboard-card'
+    },
+    {
+      icon: Lightbulb,
+      title: 'Daily Tips & Stats',
+      desc: 'AI tips & your progress',
+      path: '/daily-tips',
+      testId: 'daily-tips-card'
     }
   ];
 
