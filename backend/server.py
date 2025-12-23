@@ -746,12 +746,12 @@ async def create_nutrition_plan(
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
-    # Get latest body analysis
-    latest_analysis = await db.body_analyses.find_one(
-        {"user_id": user.id},
-        {"_id": 0},
-        sort=[("created_at", -1)]
-    )
+    # Use user profile data
+    context = ""
+    if user.weight and user.height and user.age and user.goal:
+        context = f"User: {user.weight}kg, {user.height}cm, Age {user.age}, Goal: {user.goal}"
+        if user.dietary_preferences:
+            context += f", Dietary Preferences: {', '.join(user.dietary_preferences)}"
     
     # Generate nutrition plan with AI
     try:
@@ -760,10 +760,6 @@ async def create_nutrition_plan(
             session_id=f"nutrition_plan_{user.id}_{uuid.uuid4()}",
             system_message="You are a certified nutritionist. Create balanced meal plans."
         ).with_model("openai", "gpt-4o")
-        
-        context = ""
-        if latest_analysis:
-            context = f"User: {latest_analysis['weight']}kg, {latest_analysis['height']}cm, Age {latest_analysis['age']}, Goal: {latest_analysis['goal']}"
         
         prompt = f"""{context}
 Create a nutrition plan with {input.target_calories} calories.
