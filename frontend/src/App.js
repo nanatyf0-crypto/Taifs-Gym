@@ -87,6 +87,7 @@ function App() {
           <Route path="/community" element={user ? <Community user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
           <Route path="/exercise-library" element={user ? <ExerciseLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
           <Route path="/meal-library" element={user ? <MealLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/ai-studio" element={user ? <AIStudio user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />
