@@ -17,9 +17,11 @@ const MealLibrary = ({ user }) => {
     is_child_friendly: null
   });
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
     fetchMeals();
+    fetchFavorites();
   }, [filters]);
 
   const fetchMeals = async () => {
