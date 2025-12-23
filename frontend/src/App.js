@@ -90,6 +90,8 @@ function App() {
           <Route path="/exercise-library" element={user ? <ExerciseLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
           <Route path="/meal-library" element={user ? <MealLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
           <Route path="/ai-studio" element={user ? <AIStudio user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/leaderboard" element={user ? <Leaderboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          <Route path="/daily-tips" element={user ? <DailyTips user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />
