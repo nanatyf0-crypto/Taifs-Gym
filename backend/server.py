@@ -40,6 +40,19 @@ class User(BaseModel):
     name: str
     picture: Optional[str] = None
     language_preference: str = "ar"
+    
+    # Personal Info
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    goal: Optional[str] = None
+    fitness_level: Optional[str] = None
+    dietary_preferences: Optional[List[str]] = []
+    
+    # Profile completion
+    profile_completed: bool = False
+    
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserSession(BaseModel):
