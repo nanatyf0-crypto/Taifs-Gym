@@ -1091,10 +1091,13 @@ async def generate_meal_image(
 
 # ========== VOICE ASSISTANT ENDPOINTS ==========
 
+class VoiceInput(BaseModel):
+    text: str
+    voice: str = "nova"
+
 @api_router.post("/generate-voice-guidance")
 async def generate_voice_guidance(
-    text: str,
-    voice: str = "nova",
+    input: VoiceInput,
     authorization: Optional[str] = Header(None),
     request: Request = None
 ):
