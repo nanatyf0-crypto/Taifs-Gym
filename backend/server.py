@@ -280,6 +280,10 @@ class GroupInput(BaseModel):
     description: str
     is_private: bool = False
 
+class VoiceInput(BaseModel):
+    text: str
+    voice: str = "nova"
+
 # ========== HELPER FUNCTIONS ==========
 
 def hash_password(password: str) -> str:
