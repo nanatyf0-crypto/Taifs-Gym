@@ -394,9 +394,14 @@ async def login(input: LoginInput):
 
 @api_router.get("/auth/session")
 async def get_session_data(x_session_id: str = Header(...)):
+    auth_service_url = os.environ.get(
+        'AUTH_SERVICE_URL',
+        'https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data'
+    )
+    
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            'https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data',
+            auth_service_url,
             headers={'X-Session-ID': x_session_id}
         ) as resp:
             if resp.status != 200:
