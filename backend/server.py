@@ -301,6 +301,18 @@ class ImageGenerationInput(BaseModel):
     name: str
     type: str = "exercise"  # exercise or meal
 
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    picture: Optional[str] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    goal: Optional[str] = None
+    fitness_level: Optional[str] = None
+    dietary_preferences: Optional[List[str]] = None
+    language_preference: Optional[str] = None
+
 # ========== HELPER FUNCTIONS ==========
 
 def hash_password(password: str) -> str:
