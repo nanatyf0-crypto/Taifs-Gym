@@ -649,12 +649,12 @@ async def create_workout_plan(
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
-    # Get latest body analysis
-    latest_analysis = await db.body_analyses.find_one(
-        {"user_id": user.id},
-        {"_id": 0},
-        sort=[("created_at", -1)]
-    )
+    # Use user profile data instead of latest body analysis
+    context = ""
+    if user.weight and user.height and user.age and user.goal:
+        context = f"User profile: Weight {user.weight}kg, Height {user.height}cm, Age {user.age}, Goal: {user.goal}"
+        if user.fitness_level:
+            context += f", Fitness Level: {user.fitness_level}"
     
     # Generate workout plan with AI
     try:
@@ -663,10 +663,6 @@ async def create_workout_plan(
             session_id=f"workout_plan_{user.id}_{uuid.uuid4()}",
             system_message="You are a professional fitness trainer. Create detailed workout plans."
         ).with_model("openai", "gpt-4o")
-        
-        context = ""
-        if latest_analysis:
-            context = f"User profile: Weight {latest_analysis['weight']}kg, Height {latest_analysis['height']}cm, Age {latest_analysis['age']}, Goal: {latest_analysis['goal']}"
         
         prompt = f"""{context}
 Create a {input.days_per_week}-day workout plan for {input.location} training.
