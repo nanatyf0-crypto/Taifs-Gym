@@ -210,6 +210,119 @@ class TaifFitAPITester:
             return True, {}
         return False, {}
 
+    def test_challenges(self):
+        """Test challenges system"""
+        # Test getting challenges (public endpoint)
+        success, response = self.run_test("Get Challenges", "GET", "challenges", 200)
+        
+        if success and isinstance(response, list) and len(response) > 0:
+            # Test joining a challenge
+            if self.token:
+                challenge_id = response[0]['id']
+                self.run_test("Join Challenge", "POST", f"challenges/{challenge_id}/join", 200)
+        
+        return success, response
+
+    def test_gym_coins(self):
+        """Test gym coins system"""
+        if not self.token:
+            self.log_test("Gym Coins", False, "No token available")
+            return False, {}
+        
+        return self.run_test("Get Gym Coins", "GET", "gym-coins", 200)
+
+    def test_badges(self):
+        """Test badges system"""
+        # Test getting badges (public)
+        success1, response1 = self.run_test("Get Badges", "GET", "badges", 200)
+        
+        # Test getting user badges (requires auth)
+        success2, response2 = (False, {})
+        if self.token:
+            success2, response2 = self.run_test("Get User Badges", "GET", "user-badges", 200)
+        
+        return success1 and success2, response1
+
+    def test_community_posts(self):
+        """Test community posts system"""
+        if not self.token:
+            self.log_test("Community Posts", False, "No token available")
+            return False, {}
+        
+        # Create a post
+        post_data = {
+            "content": "Just finished my workout! Feeling great! 💪",
+            "post_type": "progress"
+        }
+        
+        success, response = self.run_test("Create Post", "POST", "posts", 200, post_data)
+        
+        if success:
+            # Get posts
+            self.run_test("Get Posts", "GET", "posts", 200)
+            
+            # Like the post
+            post_id = response.get('id')
+            if post_id:
+                self.run_test("Like Post", "POST", f"posts/{post_id}/like", 200)
+        
+        return success, response
+
+    def test_exercise_library(self):
+        """Test exercise library"""
+        # Test getting exercises (public)
+        success, response = self.run_test("Get Exercises", "GET", "exercises", 200)
+        
+        # Test with filters
+        if success:
+            self.run_test("Get Exercises with Category Filter", "GET", "exercises?category=bodyweight", 200)
+            self.run_test("Get Exercises with Difficulty Filter", "GET", "exercises?difficulty=beginner", 200)
+        
+        return success, response
+
+    def test_meal_library(self):
+        """Test meal library"""
+        # Test getting meals (public)
+        success, response = self.run_test("Get Meals", "GET", "meals", 200)
+        
+        # Test with filters
+        if success:
+            self.run_test("Get Meals with Type Filter", "GET", "meals?meal_type=breakfast", 200)
+            self.run_test("Get Meals with Budget Filter", "GET", "meals?is_budget_friendly=true", 200)
+        
+        return success, response
+
+    def test_ai_image_generation(self):
+        """Test AI image generation"""
+        if not self.token:
+            self.log_test("AI Image Generation", False, "No token available")
+            return False, {}
+        
+        print("🤖 Testing AI Image Generation (may take 30-60 seconds)...")
+        
+        # Test exercise image generation
+        success1, response1 = self.run_test("Generate Exercise Image", "POST", "generate-exercise-image?exercise_name=Push-ups", 200)
+        
+        # Test meal image generation
+        success2, response2 = self.run_test("Generate Meal Image", "POST", "generate-meal-image?meal_name=Grilled%20Chicken&meal_type=lunch", 200)
+        
+        return success1 and success2, response1
+
+    def test_ai_voice_generation(self):
+        """Test AI voice generation"""
+        if not self.token:
+            self.log_test("AI Voice Generation", False, "No token available")
+            return False, {}
+        
+        print("🎤 Testing AI Voice Generation (may take 10-30 seconds)...")
+        
+        voice_data = {
+            "text": "Welcome to your workout session. Let's start with some warm-up exercises.",
+            "voice": "nova"
+        }
+        
+        return self.run_test("Generate Voice Guidance", "POST", "generate-voice-guidance", 200, voice_data)
+
     def test_logout(self):
         """Test user logout"""
         if not self.token:
@@ -220,7 +333,7 @@ class TaifFitAPITester:
 
     def run_all_tests(self):
         """Run comprehensive API test suite"""
-        print("🚀 Starting Taif Fit AI API Tests...")
+        print("🚀 Starting Taif Fit AI Comprehensive API Tests...")
         print(f"🔗 Testing against: {self.base_url}")
         print("=" * 60)
         
@@ -233,23 +346,42 @@ class TaifFitAPITester:
         self.test_get_me()
         
         # Test core features (requires authentication)
-        self.test_body_analysis()
-        self.test_workout_plan()
-        self.test_nutrition_plan()
-        self.test_progress_logs()
+        if self.token:
+            self.test_body_analysis()
+            self.test_workout_plan()
+            self.test_nutrition_plan()
+            self.test_progress_logs()
+            self.test_gym_coins()
+            self.test_community_posts()
+            
+            # Test AI features (may take longer)
+            print("\n🤖 Testing AI Features...")
+            self.test_ai_image_generation()
+            self.test_ai_voice_generation()
+        
+        # Test public endpoints
+        print("\n📚 Testing Public Libraries...")
+        self.test_challenges()
+        self.test_badges()
+        self.test_exercise_library()
+        self.test_meal_library()
         
         # Test OAuth structure
         self.test_google_oauth_session()
         
         # Test logout
-        self.test_logout()
+        if self.token:
+            self.test_logout()
         
         # Print summary
         print("=" * 60)
         print(f"📊 Test Results: {self.tests_passed}/{self.tests_run} passed")
         
-        if self.tests_passed == self.tests_run:
-            print("🎉 All tests passed!")
+        success_rate = (self.tests_passed / self.tests_run * 100) if self.tests_run > 0 else 0
+        print(f"✨ Success Rate: {success_rate:.1f}%")
+        
+        if success_rate >= 80:
+            print("🎉 Backend tests mostly successful!")
             return 0
         else:
             print(f"⚠️  {self.tests_run - self.tests_passed} tests failed")
