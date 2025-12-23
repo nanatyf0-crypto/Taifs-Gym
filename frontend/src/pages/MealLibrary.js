@@ -40,6 +40,38 @@ const MealLibrary = ({ user }) => {
     }
   };
 
+  const fetchFavorites = async () => {
+    try {
+      const token = localStorage.getItem('session_token');
+      const response = await axios.get(`${API}/favorite-meals`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const favIds = response.data.map(m => m.id);
+      setFavorites(favIds);
+    } catch (error) {
+      console.error('Fetch favorites error:', error);
+    }
+  };
+
+  const toggleFavorite = async (mealId) => {
+    try {
+      const token = localStorage.getItem('session_token');
+      await axios.post(
+        `${API}/meals/${mealId}/favorite`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (favorites.includes(mealId)) {
+        setFavorites(favorites.filter(id => id !== mealId));
+      } else {
+        setFavorites([...favorites, mealId]);
+      }
+    } catch (error) {
+      console.error('Toggle favorite error:', error);
+    }
+  };
+
   return (
     <div className="page-wrapper" data-testid="meal-library-page">
       <nav className="navbar">
