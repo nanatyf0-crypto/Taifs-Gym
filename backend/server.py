@@ -495,6 +495,53 @@ async def logout(
     response.delete_cookie('session_token')
     return {"message": "Logged out"}
 
+@api_router.put("/user/profile")
+async def update_profile(
+    input: UserProfileUpdate,
+    authorization: Optional[str] = Header(None),
+    request: Request = None
+):
+    user = await get_current_user(authorization, request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    update_data = {}
+    if input.name is not None:
+        update_data['name'] = input.name
+    if input.picture is not None:
+        update_data['picture'] = input.picture
+    if input.weight is not None:
+        update_data['weight'] = input.weight
+    if input.height is not None:
+        update_data['height'] = input.height
+    if input.age is not None:
+        update_data['age'] = input.age
+    if input.gender is not None:
+        update_data['gender'] = input.gender
+    if input.goal is not None:
+        update_data['goal'] = input.goal
+    if input.fitness_level is not None:
+        update_data['fitness_level'] = input.fitness_level
+    if input.dietary_preferences is not None:
+        update_data['dietary_preferences'] = input.dietary_preferences
+    if input.language_preference is not None:
+        update_data['language_preference'] = input.language_preference
+    
+    # Mark profile as completed if key fields are filled
+    if (input.weight and input.height and input.age and input.gender and input.goal):
+        update_data['profile_completed'] = True
+    
+    await db.users.update_one(
+        {"id": user.id},
+        {"$set": update_data}
+    )
+    
+    updated_user = await db.users.find_one({"id": user.id}, {"_id": 0})
+    if isinstance(updated_user.get('created_at'), str):
+        updated_user['created_at'] = datetime.fromisoformat(updated_user['created_at'])
+    
+    return User(**updated_user)
+
 # ========== BODY ANALYSIS ENDPOINTS ==========
 
 @api_router.post("/body-analyses", response_model=BodyAnalysis)
