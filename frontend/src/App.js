@@ -97,11 +97,20 @@ function App() {
           <Routes>
             <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
             <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <Auth setUser={setUser} />} />
-            <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-            <Route path="/body-analysis" element={user ? <BodyAnalysis user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-            <Route path="/workout-plan" element={user ? <WorkoutPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-            <Route path="/nutrition-plan" element={user ? <NutritionPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-            <Route path="/progress" element={user ? <Progress user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/setup" element={user ? <Setup user={user} onComplete={refreshUser} /> : <Navigate to="/auth" />} />
+            <Route path="/profile" element={user ? <Profile user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                user ? (
+                  !user.profile_completed ? <Navigate to="/setup" /> : <Dashboard user={user} onLogout={handleLogout} />
+                ) : <Navigate to="/auth" />
+              } 
+            />
+            <Route path="/body-analysis" element={user && user.profile_completed ? <BodyAnalysis user={user} onLogout={handleLogout} /> : <Navigate to="/setup" />} />
+            <Route path="/workout-plan" element={user && user.profile_completed ? <WorkoutPlan user={user} onLogout={handleLogout} /> : <Navigate to="/setup" />} />
+            <Route path="/nutrition-plan" element={user && user.profile_completed ? <NutritionPlan user={user} onLogout={handleLogout} /> : <Navigate to="/setup" />} />
+            <Route path="/progress" element={user && user.profile_completed ? <Progress user={user} onLogout={handleLogout} /> : <Navigate to="/setup" />} />
             <Route path="/challenges" element={user ? <Challenges user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
             <Route path="/community" element={user ? <Community user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
             <Route path="/exercise-library" element={user ? <ExerciseLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
