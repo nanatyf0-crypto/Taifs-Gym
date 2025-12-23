@@ -75,27 +75,29 @@ function App() {
   }
 
   return (
-    <div className="App" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
-          <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <Auth setUser={setUser} />} />
-          <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/body-analysis" element={user ? <BodyAnalysis user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/workout-plan" element={user ? <WorkoutPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/nutrition-plan" element={user ? <NutritionPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/progress" element={user ? <Progress user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/challenges" element={user ? <Challenges user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/community" element={user ? <Community user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/exercise-library" element={user ? <ExerciseLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/meal-library" element={user ? <MealLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/ai-studio" element={user ? <AIStudio user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/leaderboard" element={user ? <Leaderboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-          <Route path="/daily-tips" element={user ? <DailyTips user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-center" richColors />
-    </div>
+    <>
+      <div className="App" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Landing />} />
+            <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <Auth setUser={setUser} />} />
+            <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/body-analysis" element={user ? <BodyAnalysis user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/workout-plan" element={user ? <WorkoutPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/nutrition-plan" element={user ? <NutritionPlan user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/progress" element={user ? <Progress user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/challenges" element={user ? <Challenges user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/community" element={user ? <Community user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/exercise-library" element={user ? <ExerciseLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/meal-library" element={user ? <MealLibrary user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/ai-studio" element={user ? <AIStudio user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/leaderboard" element={user ? <Leaderboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+            <Route path="/daily-tips" element={user ? <DailyTips user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
+      <Toaster position="top-center" richColors closeButton />
+    </>
   );
 }
 
